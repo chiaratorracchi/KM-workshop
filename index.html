@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KM Framework Survey</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600&family=Inter:wght@400;500;600&family=Kalam&display=swap" rel="stylesheet">
+<style>
+/* VOICE work: a research instrument for experts, calm and exact
+   IDEA the printed framework plate from the thesis, which the expert fills in by hand
+   PICTURE the life-cycle x KM-process map itself, cells filling with coloured category marks
+   COLOUR white ground, ink #121212, slate #2e6f8e for structure, the thesis category pastels, red #e3120b only for the next action
+   TYPE Source Serif 4 display + Inter text
+   LAYOUT steps in one column up to 1240px; the map is full width, five columns on a laptop, one column of cells on a phone */
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#10191e);--ink:light-dark(#121212,#e9eef0);--mute:light-dark(#5d666b,#9aa7ad);--line:light-dark(#d7dde0,#2a3a42);--panel:light-dark(#e3ecf0,#17252c);--slate:light-dark(#2e6f8e,#7fb6cf);--red:#e3120b;--card:light-dark(#ffffff,#132027)}
+:root[data-theme=light]{color-scheme:light}
+:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif;overflow-x:clip}
+.band{padding-block:clamp(24px,3.5vw,48px);padding-inline:max(5vw,16px)}
+.wrap{max-width:1240px;margin:0 auto}
+.top{background:var(--slate);color:#fff}
+.top .wrap{display:flex;flex-wrap:wrap;gap:8px 24px;align-items:baseline;justify-content:space-between}
+.top b{font:600 15px Inter,sans-serif}
+.top span{font-size:14px;opacity:.85}
+h1,h2{font-family:"Source Serif 4",Georgia,serif;font-weight:600;letter-spacing:-.02em;line-height:1.08;text-wrap:balance;margin:0 0 12px}
+h1{font-size:clamp(32px,4.4vw,48px)}
+h2{font-size:clamp(26px,3vw,34px)}
+p{margin:0 0 12px;max-width:70ch}
+.lead{font-size:17px}
+.small{font-size:14px;color:var(--mute)}
+.steps{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 22px;padding:0;list-style:none}
+.steps li{font-size:13px;padding:4px 10px;border-radius:99px;background:var(--panel);color:var(--mute)}
+.steps li.on{background:var(--ink);color:var(--bg)}
+.steps li.done{color:var(--ink)}
+.card{background:var(--panel);border-radius:10px;padding:18px;margin:0 0 16px}
+label.q{display:block;font-weight:600;margin:0 0 8px}
+select,textarea{font:16px Inter,sans-serif;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px;width:100%;max-width:520px;min-height:44px}
+textarea{max-width:none;min-height:110px}
+input.txt{font:16px Inter,sans-serif;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px;width:100%;max-width:520px;min-height:44px}
+input.txt:focus-visible{outline:3px solid var(--slate);outline-offset:2px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:500 15px Inter,sans-serif;min-height:44px;padding:8px 14px;border-radius:8px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;text-align:left}
+.chip[aria-pressed=true]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.chip:focus-visible,.btn:focus-visible,.cell:focus-visible{outline:3px solid var(--slate);outline-offset:2px}
+.chip.t[aria-pressed=true]{background:var(--c);color:#121212;border-color:var(--c);box-shadow:none}
+.chip.b[aria-pressed=true]{background:var(--card);border-color:var(--c);color:var(--c);box-shadow:inset 0 0 0 1.5px var(--c)}
+.chip small{display:block;font-weight:400;font-size:13px;opacity:.8}
+.nav{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:22px}
+.btn{font:600 16px Inter,sans-serif;min-height:46px;padding:10px 20px;border-radius:8px;border:1.5px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer}
+.btn.go{background:var(--red);border-color:var(--red);color:#fff}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.err{color:var(--red);font-size:14px;font-weight:500}
+.legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(17em,1fr));gap:6px 16px;margin:10px 0 18px;font-size:14px}
+.legend div{display:flex;gap:8px;align-items:center}
+.sw{width:22px;height:14px;border-radius:3px;flex:none}
+.map{display:grid;grid-template-columns:150px repeat(5,minmax(0,1fr));gap:6px}
+.hd{background:var(--ink);color:var(--bg);border-radius:6px;padding:8px;font-size:13px;font-weight:600;line-height:1.25;display:flex;align-items:center;justify-content:center;text-align:center}
+.ph{background:var(--slate);color:#fff;border-radius:6px;padding:10px;font-weight:600;font-size:14px;line-height:1.25;display:flex;flex-direction:column;justify-content:center}
+.cell{position:relative;min-height:128px;border:1.5px dashed var(--line);border-radius:6px;background:var(--card);padding:8px;text-align:left;font:inherit;color:inherit;cursor:pointer;display:flex;flex-direction:column;gap:5px}
+.cell.done{border-style:solid;border-color:var(--slate)}
+.cell .pn{display:none;font-size:13px;font-weight:600}
+.cell .add{font-size:13px;color:var(--mute);margin-top:auto}
+.tag{font-size:12px;font-weight:600;padding:2px 6px;border-radius:4px;display:inline-block;line-height:1.4}
+.tag.b{background:transparent;border:1.5px solid var(--c);color:var(--c)}
+.tg{display:flex;flex-wrap:wrap;gap:6px}
+.lit{font-size:12px;color:var(--mute);border-top:1px solid var(--line);padding-top:4px}
+.bar{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between;margin:0 0 12px}
+.meter{height:8px;background:var(--panel);border-radius:9px;overflow:hidden;width:min(320px,100%)}
+.meter i{display:block;height:100%;background:var(--slate)}
+.pad{position:sticky;top:0;z-index:3;background:var(--bg);padding:10px 0 6px;border-bottom:1px solid var(--line);margin-bottom:14px}
+.padrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px}
+.pl{font-size:13px;font-weight:600;width:8.5em;flex:none}
+.pi{--c:#ccc;display:inline-flex;flex:none;gap:6px;align-items:center;font-size:13px;line-height:1.2;padding:9px 11px;min-height:42px;white-space:nowrap;background:var(--c);color:#121212;border-radius:2px;box-shadow:0 2px 0 color-mix(in srgb,var(--c) 60%,#000),0 4px 10px rgba(0,0,0,.12);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;position:relative}
+.pi:nth-of-type(odd){transform:rotate(-1.2deg)}
+.pi:nth-of-type(even){transform:rotate(1deg)}
+.pi b{flex:none}
+.pi.pb{background:#fffdf6;border:2.5px solid var(--c);color:color-mix(in srgb,var(--c) 85%,#000)}
+.pi[aria-pressed=true]{outline:3px solid var(--ink);outline-offset:2px}
+.pi:focus-visible{outline:3px solid var(--slate);outline-offset:2px}
+.pi.mini{padding:4px 22px 4px 7px;min-height:0;max-width:none;font-size:12px;box-shadow:0 1px 0 color-mix(in srgb,var(--c) 60%,#000),0 2px 5px rgba(0,0,0,.12)}
+.pi .x{position:absolute;right:1px;top:50%;transform:translateY(-50%);border:0;background:transparent;font:600 15px Inter,sans-serif;color:inherit;cursor:pointer;width:20px;height:24px;padding:0;opacity:.6}
+.pi .x:hover{opacity:1}
+.ghost{position:fixed;z-index:9;pointer-events:none;transform:translate(-50%,-60%) rotate(-3deg) scale(1.06);box-shadow:0 10px 24px rgba(0,0,0,.25)}
+.cell.hot{border-color:var(--red);border-style:solid;background:color-mix(in srgb,var(--red) 6%,var(--card))}
+.arming .cell:not(.done){border-color:var(--slate)}
+.cell.miss{border-color:var(--red)}
+table.g{border-collapse:collapse;width:100%;font-size:14px}
+table.g th,table.g td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:center}
+table.g th:first-child,table.g td:first-child{text-align:left;width:34%}
+table.g input{width:22px;height:22px;accent-color:var(--slate)}
+.scroll{overflow-x:auto}
+.toggle{display:flex;gap:8px;align-items:center;font-size:14px;min-height:44px}
+.toggle input{width:20px;height:20px}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;background:var(--panel);padding:12px;border-radius:8px;max-height:260px;overflow:auto}
+@media(max-width:860px){.padrow{flex-wrap:nowrap;overflow-x:auto;padding:4px 2px 8px;margin-bottom:2px}.pl{width:auto;writing-mode:horizontal-tb;font-size:12px}.pi{font-size:12px;padding:7px 9px;min-height:40px}}
+@media(prefers-reduced-motion:no-preference){.cell{transition:border-color .2s,background .2s}}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(16em,1fr));gap:12px;margin:6px 0 14px}
+.two .card{margin:0}
+.ph small{display:block;font-weight:400;font-size:12px;opacity:.85}
+.ph.off{background:var(--panel);color:var(--mute)}
+.cell.locked{cursor:not-allowed;border-style:solid;border-color:transparent;background:repeating-linear-gradient(135deg,var(--panel) 0 8px,transparent 8px 16px);opacity:.7}
+.prac{display:grid;grid-template-columns:270px minmax(0,1fr);gap:20px;align-items:start}
+.menu{position:sticky;top:12px;display:flex;flex-direction:column;gap:6px}
+.mi{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:8px;align-items:center;text-align:left;font:14px/1.3 Inter,sans-serif;color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:8px;padding:10px;min-height:44px;cursor:pointer}
+.mi.on{border-color:var(--ink);background:var(--panel)}
+.mi:focus-visible{outline:3px solid var(--slate);outline-offset:2px}
+.sw{background:var(--c)}
+.sw.swb{background:transparent;border:2px solid var(--c)}
+.cnt{font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums}
+.litbox{border-left:6px solid var(--c);background:var(--panel);border-radius:0 10px 10px 0;padding:14px 16px;margin-bottom:16px}
+.litbox h3{font:600 22px "Source Serif 4",Georgia,serif;margin:0 0 4px}
+.litbox summary{cursor:pointer;font-weight:600;min-height:32px}
+.litbox ul{margin:8px 0 0;padding-left:18px}
+.litbox li{margin-bottom:8px;font-size:14px}
+.where{display:block;font-size:12px;font-weight:600;color:var(--slate)}
+.pcard{border:1.5px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px;background:var(--card)}
+.ex{font-size:14px;color:var(--mute);margin:0 0 8px}
+.pcard textarea{min-height:84px}
+.litbox ul{margin:6px 0 0}
+.board{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:18px}
+.note{background:var(--c);color:#121212;padding:12px 12px 8px;min-height:190px;display:flex;flex-direction:column;gap:6px;box-shadow:0 2px 0 color-mix(in srgb,var(--c) 60%,#000),0 8px 16px rgba(0,0,0,.12);border-radius:2px}
+.note:nth-child(odd){transform:rotate(-1deg)}
+.note:nth-child(even){transform:rotate(.8deg)}
+.note.nb{background:#fffdf6;border:3px solid var(--c)}
+.note label{font-size:12px;line-height:1.3;color:#121212}
+.note textarea{flex:1;min-height:110px;background:transparent;border:0;border-top:1px dashed rgba(0,0,0,.25);border-radius:0;padding:8px 0 0;font:16px/1.4 "Kalam","Segoe Print","Bradley Hand",Inter,sans-serif;color:#121212;resize:none}
+.note textarea:focus{outline:2px solid rgba(0,0,0,.35);outline-offset:4px}
+.note textarea::placeholder{color:rgba(0,0,0,.45)}
+.prac .menu{gap:4px}
+.exs{list-style:none;margin:0 0 6px;padding:8px 10px;border-left:5px solid var(--c);background:var(--panel);border-radius:0 8px 8px 0;font-size:13px}
+.exs li{margin-bottom:8px}
+.exp{display:block;font-size:12px;color:var(--slate)}
+.map2{grid-template-columns:112px repeat(5,minmax(0,1fr));gap:5px}
+.map2 .hd{font-size:12px;padding:6px 4px}
+.map2 .ph{font-size:12px;padding:8px;overflow-wrap:anywhere;hyphens:auto}
+.wcell{cursor:default;border-style:solid;gap:8px;padding:6px}
+.wnote{background:var(--c);color:#121212;padding:6px 7px 4px;border-radius:2px;box-shadow:0 1px 0 color-mix(in srgb,var(--c) 60%,#000),0 4px 8px rgba(0,0,0,.12);transition:opacity .2s}
+.wnote.nb{background:#fffdf6;border:2.5px solid var(--c)}
+.wnote label{display:block;font-size:12px;line-height:1.25;color:#121212}
+.wnote textarea{width:100%;min-height:128px;background:transparent;border:0;border-top:1px dashed rgba(0,0,0,.25);border-radius:0;padding:4px 0 0;margin-top:3px;font:16px/1.35 "Kalam","Segoe Print","Bradley Hand",Inter,sans-serif;color:#121212;resize:vertical}
+.wnote textarea::placeholder{color:rgba(0,0,0,.6)}
+.wnote textarea:focus{outline:2px solid rgba(0,0,0,.35);outline-offset:2px}
+.wnote textarea,.wnote label{overflow-wrap:normal;word-break:normal;hyphens:manual}
+.mapwrap{overflow-x:auto;padding-bottom:6px}
+.mapwrap>.map{min-width:960px}
+.mapwrap>.map2{min-width:860px}
+@media(max-width:1180px){.prac{grid-template-columns:minmax(0,1fr)}.prac .menu{position:static;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));align-items:start}.prac .menu>p{grid-column:1/-1}.exs{grid-column:1/-1}}
+@media(max-width:860px){.prac{grid-template-columns:minmax(0,1fr)}.menu{position:static;flex-direction:row;overflow-x:auto;padding-bottom:6px}.mi{flex:none;max-width:16em}}
+</style>
+</head>
+<body>
+<header class="top band" style="padding-block:14px"><div class="wrap"><b>Knowledge Management in Sustainable Product Development</b><span>Master's thesis · University of Florence · about 20 minutes · anonymous</span></div></header>
+<main class="band"><div class="wrap">
+<ol class="steps" id="steps"></ol>
+<div id="view"></div>
+</div></main>
+<script>
+{
+/* Collection settings: fill in a Google Form URL and field to receive answers when hosted outside claude.ai */
+const SUBMIT = {formUrl: "https://docs.google.com/forms/d/e/1FAIpQLSen-wakrsRM_P3w5jbmf3VJrt5KA_9bh_Jdom5esgogWr1V_Q/formResponse", entry: "entry.984384688"};
+
+const TOOLS = [["ONT","Ontologies & Knowledge Graphs","#CECBF6","Structured representations of concepts and their relationships that make knowledge searchable by computers."],["KB","Knowledge Bases & Repositories","#B5D4F4","Databases or shared archives where knowledge, cases and project documents are stored and retrieved."],["COMP","Computational & Recommendation Methods","#9FE1CB","Algorithms that analyse data or suggest relevant knowledge (e.g. case-based reasoning)."],["TRAIN","Training & Educational Methods","#FAC775","Structured learning activities that build skills and knowledge."],["WORK","Workshops & Collaborative Methods","#F4C0D1","Interactive team routines for creating and exchanging knowledge."],["ECO","Eco-design Frameworks & Guidelines","#C0DD97","Procedures, checklists and heuristics that guide environmental design decisions."]];
+const BARR = [["K&C","Knowledge & Competency","#A32D2D","Missing or scattered knowledge and skills. E.g. lack of sustainability expertise, difficulty understanding eco-design principles, know-how fragmented across teams."],["ORG","Organisational & Social","#D85A30","How people, teams and the organisation work together. E.g. functional silos, resistance to change, limited leadership support, poor cross-departmental collaboration."],["DATA","Data, Information & Technology","#6b6a65","Problems with data and the systems that hold it. E.g. poor data quality, fragmented databases, different data formats, software that does not talk to each other."],["METH","Methodological & Implementation","#993556","Difficulty putting methods into practice. E.g. integrating LCA and eco-design tools into the workflow, translating environmental results into design decisions."],["RES","Resource & External Context","#854F0B","Limits from resources or from outside the company. E.g. limited budget, time or staff, regulatory uncertainty, low customer demand for sustainable products."]];
+const PROC = [["Generation & Acquisition","knowledge is generated internally or acquired from external sources"],["Exchange","knowledge is shared and transferred among people, departments and organisations"],["Integration & Codification","knowledge from different sources is combined and formalised into a structured form"],["Storage & Retrieval","knowledge is stored and organised, then retrieved when needed"],["Application & Reuse","knowledge is applied to product development and reused in other projects"]];
+const PHASES = [["D","Design","Early/conceptual and detailed design"],["M","Manufacturing","Production of the product and related processes"],["R","Redesign & Remanufacturing","Redesign of existing products; restoring used products to like-new condition"]];
+/* Extended literature map: one entry per block (row = phase index, c = KM process index) */
+
+const EX = {"ONT": [["Generation & Acquisition", "We acquire external knowledge into an ontology, e.g. eco-design concepts from the literature (Benabdellah et al., 2021), or thousands of specialist webpages turned into a knowledge graph and combined with our product knowledge to generate new design solutions (Li et al., 2020)"], ["Exchange", "We share knowledge across disciplines by giving mechanical, material and environmental experts one vocabulary, with defined meanings and explicit links between their concepts, so low-carbon design knowledge passes between them without misunderstandings (Zheng et al., 2021)"], ["Integration & Codification", "We integrate knowledge from different sources by linking it in one model: materials, processes and eco-properties in additive manufacturing (Y. Wang et al., 2024), or remanufacturing defects and operations with the design parameters behind them (C. Ke et al., 2025)"], ["Storage & Retrieval", "We store our design knowledge as a graph and retrieve it by searching for concepts through semantic queries (Li et al., 2020; Y. Wang et al., 2024)"]], "KB": [["Generation & Acquisition", "We acquire knowledge that is usually lost at end of life by recording every remanufactured product as a structured case covering disassembly, cleaning, inspection, repair and upgrade, so operators' experience becomes available to the designers of the next product (C. Ke et al., 2025)"], ["Exchange", "We share knowledge one-to-many by keeping it in a repository everyone can access: past low-carbon cases for the whole design team (Zheng et al., 2021), redesign projects documented for every department (Rossi et al., 2019), improvement experience for all suppliers (Lin et al., 2019)"], ["Storage & Retrieval", "We store past design cases and projects in a shared repository and retrieve them when the next design starts (Rossi et al., 2019; C. Ke et al., 2025), or store eco-design knowledge inside the CAD tool, which pushes it to the designer (Zhang et al., 2021)"]], "COMP": [["Generation & Acquisition", "We generate new knowledge by computation: we mine online customer reviews to derive green design requirements (Xuan & Zhang, 2025), or analyse suppliers' production data to find which processes are unstable (Lin et al., 2019)"], ["Storage & Retrieval", "We retrieve stored knowledge with software that finds the past cases most similar to a new design problem (C. Ke et al., 2025; Zheng et al., 2021) and ranks knowledge by relevance to the designer's current task (Zhang et al., 2021)"], ["Application & Reuse", "We apply knowledge automatically: a rule-based tool checks each new part against eco-design rules and suggests changes (Y. Wang et al., 2025), and solutions of similar past cases are reused to generate low-carbon alternatives (Zheng et al., 2021)"]], "TRAIN": [["Generation & Acquisition", "We generate eco-design knowledge in-house by teaching employees to read the LCA of a product we already sell, so they identify which components and life-cycle phases cause most impact and how the next version should change (Marconi & Favi, 2020)"], ["Exchange", "We transfer knowledge from those who hold it to those who must act on it: environmental experts train employees from different departments on the LCA results of the product they are about to redesign (Marconi & Favi, 2020), and consultants adapt technical sustainability methods to the company's language before training staff (Schulte et al., 2026)"], ["Application & Reuse", "We apply knowledge while learning: training is built around redesigning a real product, so employees turn what they learn into concrete design decisions (Marconi & Favi, 2020)"]], "WORK": [["Generation & Acquisition", "We create new knowledge through communities of practice, where people who know a product's problems first-hand (production, after-sales, purchasing) share their experience and turn it into redesign ideas (Cherifi et al., 2019)"], ["Exchange", "We exchange knowledge across departments through consultant-facilitated workshops, where design, purchasing and production work together on sustainability methods and build a common understanding (Schulte et al., 2026), and through internal research groups, publications and lectures on circular economy (Dokter et al., 2021)"]], "ECO": [["Generation & Acquisition", "We generate eco-design knowledge from the LCA of our own products, turning impact data into principles that tell designers which components to change and how (Marconi & Favi, 2020), and acquire principles already written in manuals and guidelines (Y. Wang et al., 2025)"], ["Exchange", "We transfer environmental knowledge without the expert by condensing it into short guidelines and quizzes (Ross et al., 2022), guiding questions for reading LCA reports (Goridkov et al., 2025), or a step-by-step template that carries solutions from biology into design (Linder & Huang, 2025)"], ["Integration & Codification", "We codify eco-design knowledge in a structured form: guidelines written as IF–THEN rules (Y. Wang et al., 2025), experts' experience formalised as heuristics (Goridkov et al., 2025), each project documented in the same format (Rossi et al., 2019)"], ["Storage & Retrieval", "We retrieve the key information from existing LCA reports with five guiding questions (scope, priority components, eco-hotspots, key metrics, design strategies), so non-expert designers find what matters without an expert (Goridkov et al., 2025)"], ["Application & Reuse", "We apply eco-design principles to choose between design alternatives (Marconi & Favi, 2020; Goridkov et al., 2025) and reuse them in later projects without repeating the LCA (Marconi & Favi, 2020)"]]};
+/* references in round brackets with a year are shown in italics */
+const fmtEx = t => esc(t).replace(/\(([^()]*\d{4}[^()]*)\)/g,"<i>($1)</i>");
+const LITC = {D:["ONT, COMP, TRAIN, WORK, ECO · K&C, DATA","ONT, KB, TRAIN, WORK, ECO · K&C, ORG, METH","ONT, ECO · DATA, METH","ONT, KB, COMP · DATA","COMP, TRAIN, ECO · K&C, DATA"],M:["COMP","KB","","KB","COMP"],R:["KB, TRAIN, WORK, ECO · DATA, RES","KB, TRAIN, ECO · K&C, DATA, METH","ONT, ECO · DATA","KB, ECO · DATA","TRAIN, ECO · K&C, METH"]};
+const SHORT = {ONT:"Ontologies & knowledge graphs",KB:"Knowledge bases",COMP:"Computational methods",TRAIN:"Training",WORK:"Workshops",ECO:"Eco-design guidelines","K&C":"Knowledge & competency",ORG:"Organisational & social",DATA:"Data & technology",METH:"Methodological",RES:"Resources & context"};
+const NOTES = TOOLS.map(t=>({k:t[0],z:"t",name:SHORT[t[0]],full:t[1],c:t[2],d:t[3]})).concat(BARR.map(x=>({k:x[0],z:"b",name:SHORT[x[0]],full:x[1]+" barriers",c:x[2],d:x[3]})));
+const noteOf = k => NOTES.find(n=>n.k===k);
+const REAL = NOTES;
+
+const BG = ["Industry professional","Academic researcher","Both"];
+const YRS = ["Less than 3 years","3–5 years","6–10 years","More than 10 years"];
+const SECT = ["Automotive & transport","Machinery & industrial equipment","Electrical & electronic products","Consumer goods","Packaging","Construction & building products","Agri-food","Energy","Cross-sector / general research","Other"];
+const SRC = ["Within the design team","Other functions during design (e.g. purchasing, marketing)","Manufacturing / production","Product use (customers, after-sales, warranty)","End of life (repair, disassembly, recycling, remanufacturing)","Don't know"];
+const CHAN = ["Meetings or direct conversations with colleagues","Shared databases, repositories or PLM systems","Reports or documents","Automated tools (e.g. analysis of product data or customer reviews)","Don't know"];
+const LCA_R = ["Read and interpret LCA results","Assess the environmental impact of a new design solution","Translate environmental results into design decisions"];
+const LCA_C = ["Designers themselves","Internal LCA/sustainability expert","External consultant","Designers with expert support","Not done","Don't know"];
+/* Knowledge-flows questions (P2, P4): off until agreed with the supervisor; set to true to show them again */
+const SHOW_FLOWS = false;
+const STEPS = SHOW_FLOWS ? ["Welcome","Your experience","Part 1 · The map","Part 2 · Practices","Knowledge flows","Finish"] : ["Welcome","Your experience","Part 1 · The map","Part 2 · Practices","Finish"];
+const stepIdx = i => SHOW_FLOWS||i<4 ? i : i-1;
+
+let st = {step:0, profile:{bg:"",yrs:"",sect:[]}, phases:[], cells:{}, prac:{}, cat:"", src:[], chan:[], lca:{}, comment:"", showLit:false, sent:false};
+try{const s=JSON.parse(localStorage.getItem("kmsurvey2")||"null");if(s&&!s.sent)st=Object.assign(st,s)}catch(e){}
+const save = () => {try{localStorage.setItem("kmsurvey2",JSON.stringify(st))}catch(e){}};
+const esc = s => String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const V = document.getElementById("view");
+const tog = (arr,v) => arr.includes(v) ? arr.filter(x=>x!==v) : arr.concat(v);
+const chips = (id,opts,sel) => `<div class="chips" data-g="${id}">${opts.map(o=>`<button type="button" class="chip" data-v="${esc(o)}" aria-pressed="${sel.includes(o)}">${esc(o)}</button>`).join("")}</div>`;
+const keyOf = (p,i) => p+"|"+i;
+const pIdx = p => PHASES.findIndex(x=>x[0]===p);
+const cellOk = c => !!c && (c.t.length+c.b.length)>0;
+const cellsTotal = () => st.phases.length*5;
+const notesPlaced = () => placedList().length;
+/* every real post-it the expert placed: {key, k} */
+const placedList = () => Object.entries(st.cells).filter(([key])=>st.phases.includes(key[0])).flatMap(([key,c])=>c.t.concat(c.b).map(k=>({key,k})));
+
+function steps(){const cur=stepIdx(st.step);document.getElementById("steps").innerHTML=STEPS.map((s,i)=>`<li class="${i===cur?"on":i<cur?"done":""}">${s}</li>`).join("")}
+function render(){
+  steps(); save();
+  const s = st.step;
+  if(s===0) V.innerHTML = `<h1>How is knowledge managed in sustainable product development?</h1>
+    <p class="lead">A review of 40 studies mapped which knowledge management tools and barriers appear across a product's life cycle. This short workshop compares that map with your experience.</p>
+    <div class="two"><div class="card"><b>Part 1 · The map</b><p class="small">Drag post-its for tools, methods and barriers onto the cells of the map, for the life-cycle phases you know.</p></div>
+    <div class="card"><b>Part 2 · Your practices</b><p class="small">On the same tool and method post-its, write in a few words the practice behind each one.</p></div></div>
+    <p>About 20 minutes. Answers are anonymous and analysed only in aggregate for academic research. Works best on a computer; your progress is kept in this browser until you submit.</p>
+    <div class="nav"><button class="btn go" data-go="1">Start</button></div>`;
+  if(s===1) V.innerHTML = `<h2>Your experience</h2>
+    <div class="card"><span class="q">In which life-cycle phases do you have professional experience or in-depth knowledge? <span class="small">Select all that apply. Only these rows of the map will be open for you.</span></span>
+    <div class="chips" data-g="phases">${PHASES.map(p=>`<button type="button" class="chip" data-v="${p[0]}" aria-pressed="${st.phases.includes(p[0])}">${p[1]}<small>${p[2]}</small></button>`).join("")}</div></div>
+    <div class="card"><label class="q" for="bg">Which best describes your background?</label><select id="bg"><option value="">Select…</option>${BG.map(o=>`<option ${st.profile.bg===o?"selected":""}>${o}</option>`).join("")}</select></div>
+    <div class="card"><label class="q" for="yrs">Years of professional or research experience</label><select id="yrs"><option value="">Select…</option>${YRS.map(o=>`<option ${st.profile.yrs===o?"selected":""}>${o}</option>`).join("")}</select></div>
+    <div class="card"><span class="q">In which sector(s) do you have experience? <span class="small">Select all that apply</span></span>${chips("sect",SECT,st.profile.sect)}
+    ${st.profile.sect.includes("Other")?`<label class="q" for="sectOther" style="margin-top:12px">Other sector: please specify</label><input type="text" id="sectOther" class="txt" maxlength="120" placeholder="e.g. Medical devices">`:""}</div>
+    <p class="err" id="e"></p><div class="nav"><button class="btn" data-go="0">Back</button><button class="btn go" id="n1">Continue to the map</button></div>`;
+  if(s===1){const so=document.getElementById("sectOther");if(so)so.value=st.profile.sectOther||""}
+  if(s===2) mapView();
+  if(s===3) pracView();
+  if(s===4&&!SHOW_FLOWS){st.step=5;return render()}
+  if(s===4) V.innerHTML = `<h2>How knowledge reaches design</h2>
+    ${st.phases.includes("D")?`<div class="card"><span class="q">During design, where does the knowledge exchanged with designers come from? <span class="small">Select all that apply</span></span>${chips("src",SRC,st.src)}</div>
+    <div class="card"><span class="q">How does this knowledge usually reach designers? <span class="small">Select all that apply</span></span>${chips("chan",CHAN,st.chan)}</div>`:""}
+    <div class="card"><span class="q">In your organisation, who usually does each of the following?</span><div class="scroll"><table class="g"><thead><tr><th></th>${LCA_C.map(c=>`<th>${c}</th>`).join("")}</tr></thead><tbody>${LCA_R.map((r,i)=>`<tr><td>${r}</td>${LCA_C.map(c=>`<td><input type="radio" name="l${i}" value="${esc(c)}" aria-label="${esc(r+": "+c)}" ${st.lca[i]===c?"checked":""}></td>`).join("")}</tr>`).join("")}</tbody></table></div></div>
+    <p class="err" id="e"></p><div class="nav"><button class="btn" data-go="3">Back</button><button class="btn go" id="n4">Continue</button></div>`;
+  if(s===5) finish();
+}
+
+/* ---------- Part 1: post-it map ---------- */
+let armed = null;
+function place(key,k){
+  const c = st.cells[key] || {t:[],b:[]}; const n = noteOf(k);
+  if(!c[n.z].includes(k))c[n.z]=c[n.z].concat(k);
+  st.cells[key]=c;
+}
+function unplace(key,k){const c=st.cells[key];if(!c)return;c.t=c.t.filter(x=>x!==k);c.b=c.b.filter(x=>x!==k);delete st.prac[key+"|"+k]}
+const noteHtml = (n,mini,key) => `<span class="pi ${n.z==="b"?"pb":""} ${mini?"mini":""}" style="--c:${n.c}" ${mini?`data-placed="${key}" data-k="${esc(n.k)}"`:`data-note="${esc(n.k)}" tabindex="0" role="button" aria-pressed="${armed===n.k}" title="${esc(n.full+": "+n.d)}"`}><b>${esc(n.k)}</b>${mini?"":`<span>${esc(n.name)}</span>`}${mini?`<button type="button" class="x" aria-label="Remove ${esc(n.name)}">×</button>`:""}</span>`;
+function mapView(){
+  const np=notesPlaced();
+  V.innerHTML = `<h2>Part 1 · Place the post-its on the map</h2>
+    <p>Drag each post-it onto every cell where it applies in your experience: <b>coloured notes</b> are tools and methods that support that knowledge process, <b>outlined notes</b> are barriers that hinder it. On a phone, tap a note and then tap the cells.</p>
+    <p class="small">Use only the notes that apply: leave a cell empty if nothing fits or you have no view. Greyed rows are phases outside your experience. Hover a note for its definition.</p>
+    <div class="pad" id="pad">
+      <div class="padrow"><span class="pl">Tools &amp; methods</span>${NOTES.filter(n=>n.z==="t").map(n=>noteHtml(n)).join("")}</div>
+      <div class="padrow"><span class="pl">Barriers</span>${NOTES.filter(n=>n.z==="b").map(n=>noteHtml(n)).join("")}</div>
+      <p class="small" id="armMsg">${armed?`Selected: <b>${esc(noteOf(armed).name)}</b>. Tap the cells where it applies, or tap the note again to stop.`:""}</p>
+    </div>
+    <div class="bar"><div><b>${np}</b> ${np===1?"post-it":"post-its"} placed</div>
+    <label class="toggle"><input type="checkbox" id="lit" ${st.showLit?"checked":""}> Show what the literature reports</label></div>
+    <div class="mapwrap"><div class="map ${armed?"arming":""}">
+      <div></div>${PROC.map(p=>`<div class="hd" title="${esc(p[1])}">${p[0]}</div>`).join("")}
+      ${PHASES.map((p,pi)=>{const on=st.phases.includes(p[0]);return `<div class="ph ${on?"":"off"}">${p[1]}${on?"":`<small>Not your experience</small>`}</div>${PROC.map((pr,i)=>{const key=keyOf(p[0],i),c=st.cells[key]||{t:[],b:[]};
+        if(!on) return `<div class="cell locked" aria-disabled="true"><span class="pn">${pr[0]}</span></div>`;
+        const placed=c.t.concat(c.b).map(k=>noteHtml(noteOf(k),true,key)).join("");
+        const L=LITC[p[0]][i];
+        return `<div class="cell ${cellOk(c)?"done":""}" data-cell="${key}" tabindex="0" role="button" aria-label="${esc(p[1]+", "+pr[0])}"><span class="pn">${pr[0]}</span>
+        <div class="tg">${placed||`<span class="add">Drop post-its here</span>`}</div>
+        ${st.showLit?`<div class="lit">Literature: ${esc(L||"nothing reported")}</div>`:""}</div>`}).join("")}`}).join("")}
+    </div></div>
+    <p class="err" id="e"></p><div class="nav"><button class="btn" data-go="1">Back</button><button class="btn go" id="n2">Continue to Part 2</button></div>`;
+}
+let drag=null;
+function cellAt(x,y){const el=document.elementFromPoint(x,y);return el&&el.closest(".cell[data-cell]")}
+document.addEventListener("pointerdown",e=>{
+  if(st.step!==2||e.button>0||e.target.closest(".x"))return;
+  const src=e.target.closest("[data-note],[data-placed]"); if(!src)return;
+  drag={k:src.dataset.note||src.dataset.k,from:src.dataset.placed||null,x0:e.clientX,y0:e.clientY,moved:false,ghost:null,over:null,id:e.pointerId};
+});
+document.addEventListener("pointermove",e=>{
+  if(!drag||e.pointerId!==drag.id)return;
+  if(!drag.moved&&Math.hypot(e.clientX-drag.x0,e.clientY-drag.y0)<6)return;
+  if(!drag.moved){drag.moved=true;const g=document.createElement("div");g.innerHTML=noteHtml(noteOf(drag.k));drag.ghost=g.firstChild;drag.ghost.classList.add("ghost");document.body.appendChild(drag.ghost)}
+  e.preventDefault();
+  drag.ghost.style.left=e.clientX+"px";drag.ghost.style.top=e.clientY+"px";
+  const c=cellAt(e.clientX,e.clientY); if(drag.over&&drag.over!==c)drag.over.classList.remove("hot"); if(c)c.classList.add("hot"); drag.over=c;
+  if(e.clientY<60)scrollBy(0,-14); else if(e.clientY>innerHeight-60)scrollBy(0,14);
+},{passive:false});
+document.addEventListener("pointerup",e=>{
+  if(!drag||e.pointerId!==drag.id)return; const d=drag; drag=null;
+  if(d.ghost)d.ghost.remove(); if(d.over)d.over.classList.remove("hot");
+  if(!d.moved){ if(!d.from){armed=armed===d.k?null:d.k;render()} return }
+  const c=cellAt(e.clientX,e.clientY);
+  if(d.from&&c&&c.dataset.cell===d.from){render();return}
+  if(d.from)unplace(d.from,d.k);
+  if(c)place(c.dataset.cell,d.k);
+  render();
+});
+document.addEventListener("pointercancel",()=>{if(drag&&drag.ghost)drag.ghost.remove();drag=null;document.querySelectorAll(".hot").forEach(x=>x.classList.remove("hot"))});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&armed){armed=null;render()}});
+
+/* ---------- Part 2: practices ---------- */
+function pracView(){
+  const all=placedList().filter(p=>noteOf(p.k).z==="t"), cats=REAL.filter(n=>n.z==="t"&&all.some(p=>p.k===n.k));
+  if(!cats.length){V.innerHTML=`<h2>Part 2 · Your practices</h2><p>You did not place any tool or method post-it, so there are no practices to describe.</p><div class="nav"><button class="btn" data-go="2">Back to the map</button><button class="btn go" data-go="${SHOW_FLOWS?4:5}">Continue</button></div>`;return}
+  if(st.cat&&!cats.some(n=>n.k===st.cat)) st.cat="";
+  const fd=all.filter(p=>(st.prac[p.key+"|"+p.k]||"").trim()).length;
+  V.innerHTML = `<h2>Part 2 · Now let's talk about practices</h2>
+    <p>Here is your map with the post-its you placed. On each <b>tool or method</b> post-it, write the practice behind it: what is actually done, by whom, with what result. A few words are enough; leave a post-it blank if you prefer. Barriers are shown for reference only.</p>
+    <div class="bar"><div><b id="wcount">${fd} of ${all.length}</b> post-its written</div></div>
+    <div class="prac">
+      <nav class="menu" aria-label="A few examples of best practices from the literature"><p class="small" style="margin:0 0 4px">Need inspiration? A few examples of best practices from the literature:</p>
+      ${cats.map(c=>{const on=c.k===st.cat;return `<button type="button" class="mi ${on?"on":""}" data-cat="${esc(c.k)}" aria-expanded="${on}"><span class="sw ${c.z==="b"?"swb":""}" style="--c:${c.c}"></span><span><b>${esc(c.k)}</b> ${esc(c.name)}</span><span class="cnt">${on?"−":"+"}</span></button>
+        ${on?`<ul class="exs" style="--c:${c.c}">${(EX[c.k]||[]).map(x=>`<li><b class="exp">${esc(x[0])}</b>${fmtEx(x[1])}</li>`).join("")}</ul>`:""}`}).join("")}</nav>
+      <div class="mapwrap"><div class="map map2 ${st.cat?"focus":""}">
+        <div></div>${PROC.map(p=>`<div class="hd">${p[0]}</div>`).join("")}
+        ${PHASES.map(p=>{const on=st.phases.includes(p[0]);return `<div class="ph ${on?"":"off"}">${p[1].replace("Remanufacturing","Remanu\u00ADfacturing")}</div>${PROC.map((pr,i)=>{const key=keyOf(p[0],i),c=st.cells[key]||{t:[],b:[]};
+          if(!on) return `<div class="cell locked" aria-disabled="true"><span class="pn">${pr[0]}</span></div>`;
+          const ks=c.t;
+          return `<div class="cell wcell"><span class="pn">${pr[0]}</span>${ks.length?ks.map(k=>{const n=noteOf(k),id="t_"+key.replace("|","_")+"_"+k.replace("&","");
+            return `<div class="wnote ${n.z==="b"?"nb":""}" style="--c:${n.c}"><label for="${id}"><b>${esc(k)}</b> ${esc(n.name)}</label><textarea id="${id}" data-pk="${esc(key+"|"+k)}" maxlength="280" rows="3" placeholder="${n.z==="b"?"How does it show up?":"Which practice do you use here, and how does it work?"}" aria-label="${esc(n.full+" in "+p[1]+", "+pr[0])}"></textarea></div>`}).join(""):(c.b.length?"":`<span class="add">Empty</span>`)}${c.b.length?`<div class="tg">${c.b.map(k=>`<span class="tag b" style="--c:${noteOf(k).c}">${esc(k)}</span>`).join("")}</div>`:""}</div>`}).join("")}`}).join("")}
+      </div></div>
+    </div>
+    <div class="nav"><button class="btn" data-go="2">Back to the map</button><button class="btn go" data-go="${SHOW_FLOWS?4:5}">Continue</button></div>`;
+  V.querySelectorAll("textarea[data-pk]").forEach(t=>{t.value=st.prac[t.dataset.pk]||""});
+}
+
+/* ---------- Finish ---------- */
+function finish(){
+  V.innerHTML = `<h2>Anything to add?</h2>
+    <div class="card"><label class="q" for="cm">A comment on the map or on this workshop <span class="small">(optional)</span></label><textarea id="cm"></textarea></div>
+    <div class="nav"><button class="btn" data-go="${SHOW_FLOWS?4:3}">Back</button><button class="btn go" id="send">Submit answers</button></div><div id="out"></div>`;
+  const cm=document.getElementById("cm"); cm.value=st.comment;
+  document.getElementById("send").onclick = async (ev) => {
+    const sb=ev.currentTarget; if(sb.disabled)return; sb.disabled=true; sb.textContent="Sending…";
+    const payload = {submitted:new Date().toISOString(),profile:st.profile,phases:st.phases,cells:Object.fromEntries(Object.entries(st.cells).filter(([k])=>st.phases.includes(k[0]))),practices:st.prac,...(SHOW_FLOWS?{source:st.src,channel:st.chan,lca:LCA_R.reduce((o,r,i)=>(o[r]=st.lca[i]||"",o),{})}:{}),comment:st.comment};
+    const out=document.getElementById("out"); let ok=false;
+    if(SUBMIT.formUrl&&SUBMIT.entry){try{const fd=new FormData();fd.append(SUBMIT.entry,JSON.stringify(payload));await fetch(SUBMIT.formUrl,{method:"POST",mode:"no-cors",body:fd});ok=true}catch(e){}}
+    if(ok){st.sent=true;try{localStorage.removeItem("kmsurvey2")}catch(e){}V.innerHTML=`<h2>Thank you</h2><p class="lead">Your answers have been recorded. If you know colleagues with experience in product design, manufacturing or remanufacturing, we would be grateful if you shared this workshop with them.</p>`;return}
+    sb.disabled=false; sb.textContent="Submit answers";
+    out.innerHTML=`<div class="card" style="margin-top:18px"><b>Demo version: answers are not sent yet.</b><p class="small">This preview is not connected to a response sheet. Below is exactly what would be recorded.</p><pre></pre><button class="btn" id="cp">Copy answers</button> <span class="small" id="cpm"></span></div>`;
+    out.querySelector("pre").textContent=JSON.stringify(payload,null,1);
+    document.getElementById("cp").onclick=async()=>{try{await navigator.clipboard.writeText(JSON.stringify(payload));document.getElementById("cpm").textContent="Copied"}catch(e){document.getElementById("cpm").textContent="Copy not available here"}};
+  };
+}
+
+/* ---------- events ---------- */
+const go = n => {st.step=n;armed=null;render();scrollTo(0,0)};
+V.addEventListener("click",e=>{
+  const g=e.target.closest("[data-go]"); if(g)return go(+g.dataset.go);
+  const ch=e.target.closest(".chips[data-g] .chip");
+  if(ch){const gr=ch.parentElement.dataset.g,v=ch.dataset.v,solo=x=>x==="Don't know";
+    if(gr==="sect")st.profile.sect=tog(st.profile.sect,v);
+    if(gr==="phases")st.phases=tog(st.phases,v);
+    if(gr==="src")st.src=solo(v)?(st.src.includes(v)?[]:[v]):tog(st.src.filter(x=>!solo(x)),v);
+    if(gr==="chan")st.chan=solo(v)?(st.chan.includes(v)?[]:[v]):tog(st.chan.filter(x=>!solo(x)),v);
+    if(gr==="sect"&&v==="Other"&&!st.profile.sect.includes("Other"))delete st.profile.sectOther;
+    const keep=[...ch.parentElement.children].indexOf(ch); render();
+    if(gr==="sect"&&v==="Other"&&st.profile.sect.includes("Other")){document.getElementById("sectOther")?.focus();return}
+    document.querySelector(`.chips[data-g="${gr}"]`)?.children[keep]?.focus(); return}
+  if(st.step===2){
+    const x=e.target.closest(".x"); if(x){const p=x.closest("[data-placed]");unplace(p.dataset.placed,p.dataset.k);render();return}
+    const c=e.target.closest(".cell[data-cell]"); if(c&&armed&&!e.target.closest("[data-placed]")){place(c.dataset.cell,armed);render();document.querySelector(`[data-cell="${c.dataset.cell}"]`)?.focus();return}
+  }
+  const mi=e.target.closest("[data-cat]"); if(mi){st.cat=st.cat===mi.dataset.cat?"":mi.dataset.cat;render();document.querySelector(`[data-cat="${CSS.escape(mi.dataset.cat)}"]`)?.focus();return}
+  const err=m=>{const el=document.getElementById("e");if(el)el.textContent=m};
+  if(e.target.id==="n1"){if(!st.phases.length)return err("Please select at least one life-cycle phase.");if(!st.profile.bg||!st.profile.yrs)return err("Please answer the background and experience questions.");go(2)}
+  if(e.target.id==="n2")go(3);
+  if(e.target.id==="n4"){if(Object.keys(st.lca).length<3)return err("Please answer each row of the last question.");if(st.phases.includes("D")&&(!st.src.length||!st.chan.length))return err("Please answer the questions on knowledge sources and channels.");go(5)}
+});
+V.addEventListener("keydown",e=>{
+  if(st.step!==2||(e.key!=="Enter"&&e.key!==" "))return;
+  const n=e.target.closest("[data-note]"); if(n){e.preventDefault();armed=armed===n.dataset.note?null:n.dataset.note;render();document.querySelector(`[data-note="${CSS.escape(n.dataset.note)}"]`)?.focus();return}
+  const c=e.target.closest(".cell[data-cell]"); if(c&&armed){e.preventDefault();place(c.dataset.cell,armed);render();document.querySelector(`[data-cell="${c.dataset.cell}"]`)?.focus()}
+});
+V.addEventListener("input",e=>{
+  if(e.target.dataset.pk){st.prac[e.target.dataset.pk]=e.target.value;save();const all=placedList().filter(p=>noteOf(p.k).z==="t"),w=document.getElementById("wcount");if(w)w.textContent=all.filter(p=>(st.prac[p.key+"|"+p.k]||"").trim()).length+" of "+all.length;return}
+  if(e.target.id==="cm"){st.comment=e.target.value;save()}
+  if(e.target.id==="sectOther"){st.profile.sectOther=e.target.value;save()}
+});
+V.addEventListener("change",e=>{
+  if(e.target.id==="bg")st.profile.bg=e.target.value;
+  if(e.target.id==="yrs")st.profile.yrs=e.target.value;
+  if(e.target.id==="lit"){st.showLit=e.target.checked;render();return}
+  if(e.target.name&&e.target.name[0]==="l")st.lca[+e.target.name.slice(1)]=e.target.value;
+  save();
+});
+render();
+}
+
+</script>
+</body>
+</html>
